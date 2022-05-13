@@ -1,13 +1,12 @@
 [package]
-name = "bf-parser"
+name = "wasm_encoder"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-bf-common = { path = "../common/" }
-bf-lexer = { path = "../lexer/" }
-bf-ast = { path = "../ast/" }
+leb128 = "0.2.5"

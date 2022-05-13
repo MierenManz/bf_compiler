@@ -11,7 +11,7 @@ pub enum KeyWord {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub enum Token {
+pub enum Instruction {
     LocalGet,
     LocalSet,
     LocalTee,
@@ -22,17 +22,11 @@ pub enum Token {
     BranchIf(u32),
     Branch(u32),
 
-    Call(CallableFunction),
+    Call(u8),
 
     I32Load8,
     I32Store8,
     I32Const(i32),
     I32Add,
     I32Eqz,
-}
-
-#[derive(Clone, Copy, Debug)]
-pub enum CallableFunction {
-    IoRead = 0,
-    IoWrite = 1,
 }

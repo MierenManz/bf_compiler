@@ -3,6 +3,13 @@
 version = 3
 
 [[package]]
+name = "bf-ast"
+version = "0.1.0"
+dependencies = [
+ "bf-common",
+]
+
+[[package]]
 name = "bf-cli"
 version = "0.1.0"
 dependencies = [
@@ -20,7 +27,6 @@ name = "bf-compiler"
 version = "0.1.0"
 dependencies = [
  "bf-common",
- "wasm-encoder",
 ]
 
 [[package]]
@@ -34,6 +40,7 @@ dependencies = [
 name = "bf-parser"
 version = "0.1.0"
 dependencies = [
+ "bf-ast",
  "bf-common",
  "bf-lexer",
 ]
@@ -45,10 +52,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "884e2677b40cc8c339eaefcb701c32ef1fd2493d71118dc0ca4b6a736c93bd67"
 
 [[package]]
-name = "wasm-encoder"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a35138d119147af92d7e44ae0f052f6496ee5f38e7c0cad3e0338befdb8f3753"
+name = "wasm_encoder"
+version = "0.1.0"
 dependencies = [
  "leb128",
 ]

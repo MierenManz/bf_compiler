@@ -1,4 +1,4 @@
 mod compiler;
-mod sections;
+mod error;
 
 pub use compiler::Compiler;

@@ -1,10 +1,12 @@
 [workspace]
 members = [
+  "ast",
   "cli",
   "common",
   "compiler",
   "lexer",
   "parser",
+  "wasm_encoder",
 ]
 
 [profile.release]

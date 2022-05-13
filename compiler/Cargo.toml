@@ -9,4 +9,3 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 bf-common = { path = "../common/" }
-wasm-encoder = "0.11.0"

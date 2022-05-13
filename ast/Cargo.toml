@@ -1,5 +1,5 @@
 [package]
-name = "bf-parser"
+name = "bf-ast"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,5 +9,3 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 bf-common = { path = "../common/" }
-bf-lexer = { path = "../lexer/" }
-bf-ast = { path = "../ast/" }
