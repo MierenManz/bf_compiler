@@ -1,0 +1,12 @@
+[workspace]
+members = [
+  "cli",
+  "common",
+  "compiler",
+  "lexer",
+  "parser",
+]
+
+[profile.release]
+lto = true
+opt-level = 3
