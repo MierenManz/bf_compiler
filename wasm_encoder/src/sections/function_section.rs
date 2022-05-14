@@ -4,12 +4,6 @@ pub struct FunctionSection {}
 
 impl FunctionSection {
     pub fn new() -> Self {
-        Self::default()
-    }
-}
-
-impl Default for FunctionSection {
-    fn default() -> Self {
         Self {}
     }
 }

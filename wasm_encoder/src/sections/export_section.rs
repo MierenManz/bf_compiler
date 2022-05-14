@@ -4,15 +4,10 @@ pub struct ExportSection {}
 
 impl ExportSection {
     pub fn new() -> Self {
-        Self::default()
-    }
-}
-
-impl Default for ExportSection {
-    fn default() -> Self {
         Self {}
     }
 }
+
 
 impl Section for ExportSection {
     fn compile(self) -> Vec<u8> {

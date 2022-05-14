@@ -4,14 +4,9 @@ pub struct MemorySection {}
 
 impl MemorySection {
     pub fn new() -> Self {
-        Self::default()
-    }
-}
-
-impl Default for MemorySection {
-    fn default() -> Self {
         Self {}
     }
+
 }
 
 impl Section for MemorySection {

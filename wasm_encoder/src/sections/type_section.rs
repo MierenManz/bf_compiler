@@ -11,7 +11,9 @@ pub struct TypeSection {
 
 impl TypeSection {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            type_defs: Vec::new(),
+        }
     }
 
     pub fn add_type_definition(&mut self, params: Vec<ValType>, returns: Vec<ValType>) -> usize {
@@ -30,17 +32,9 @@ impl TypeSection {
     }
 }
 
-impl Default for TypeSection {
-    fn default() -> Self {
-        Self {
-            type_defs: Vec::new(),
-        }
-    }
-}
-
 impl Section for TypeSection {
     fn compile(self) -> Result<Vec<u8>, EncodingError> {
-        let mut byte_buff = Vec::with_capacity(5);
+        let mut byte_buff = Vec::new();
         write::unsigned(&mut byte_buff, self.type_defs.len() as u64)?;
 
         for (param_vector, result_vector) in self.type_defs {
