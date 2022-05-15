@@ -1,9 +1,8 @@
 use leb128::write;
 
 use super::Section;
-use crate::ValType;
 use crate::EncodingError;
-
+use crate::ValType;
 
 pub struct TypeSection {
     type_defs: Vec<(Vec<ValType>, Vec<ValType>)>,
@@ -59,7 +58,7 @@ impl Section for TypeSection {
         Ok(byte_buff)
     }
 
-    fn id() -> u8 {
+    fn id(&self) -> u8 {
         0x01
     }
 }
