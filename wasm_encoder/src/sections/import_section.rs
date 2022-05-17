@@ -1,12 +1,61 @@
 use super::Section;
 use crate::EncodingError;
+use crate::ResizableLimits;
+use crate::ValType;
 use leb128::write;
 
+#[derive(Copy, Clone)]
 pub enum ImportKind {
-    Function = 0x00,
-    Table = 0x1,
-    Memory = 0x02,
-    Global = 0x03,
+    Function(u32),
+    Table(ResizableLimits),
+    Memory(ResizableLimits),
+    Global(ValType, bool),
+}
+
+impl ImportKind {
+    pub fn encode(self) -> Result<Vec<u8>, EncodingError> {
+        let mut buff = Vec::new();
+        write::unsigned(&mut buff, u8::from(self) as u64)?;
+        match self {
+            ImportKind::Function(idx) => {
+                write::unsigned(&mut buff, idx as u64)?;
+            }
+            ImportKind::Table(mem_descriptor) | ImportKind::Memory(mem_descriptor) => {
+                if mem_descriptor.maximum.is_some() {
+                    write::unsigned(&mut buff, 1)?;
+                } else {
+                    write::unsigned(&mut buff, 0)?;
+                }
+
+                write::unsigned(&mut buff, mem_descriptor.minimum as u64)?;
+
+                if mem_descriptor.maximum.is_some() {
+                    write::unsigned(&mut buff, mem_descriptor.maximum.unwrap() as u64)?;
+                }
+            }
+            ImportKind::Global(val, is_mut) => {
+                write::unsigned(&mut buff, val as u64)?;
+                if is_mut {
+                    write::unsigned(&mut buff, 1)?;
+                } else {
+                    write::unsigned(&mut buff, 0)?;
+                }
+            }
+        };
+
+        Ok(buff)
+    }
+}
+
+impl From<ImportKind> for u8 {
+    fn from(kind: ImportKind) -> Self {
+        match kind {
+            ImportKind::Function(_) => 0x00,
+            ImportKind::Table(_) => 0x01,
+            ImportKind::Memory(_) => 0x02,
+            ImportKind::Global(_, _) => 0x03,
+        }
+    }
 }
 
 pub struct ImportSection {
@@ -60,7 +109,7 @@ impl Section for ImportSection {
             write::unsigned(&mut byte_buff, export_name.len() as u64)?;
             byte_buff.extend_from_slice(export_name.as_bytes());
 
-            byte_buff.push(kind as u8);
+            byte_buff.extend_from_slice(&kind.encode()?);
         }
 
         Ok(byte_buff)
