@@ -1,16 +1,10 @@
 use super::Section;
 use crate::EncodingError;
+use crate::ExternalKind;
 use leb128::write;
 
-pub enum ImportKind {
-    Function = 0x00,
-    Table = 0x1,
-    Memory = 0x02,
-    Global = 0x03,
-}
-
 pub struct ImportSection {
-    imports: Vec<(String, String, ImportKind)>,
+    imports: Vec<(String, String, ExternalKind)>,
 }
 
 impl ImportSection {
@@ -24,7 +18,7 @@ impl ImportSection {
         &mut self,
         module_name: T,
         export_name: T,
-        kind: ImportKind,
+        kind: ExternalKind,
     ) -> usize {
         self.imports
             .push((module_name.into(), export_name.into(), kind));
@@ -35,13 +29,11 @@ impl ImportSection {
     pub fn remove_import(&mut self, id: usize) -> bool {
         if id < self.imports.len() {
             self.imports.swap_remove(id);
-            true
-        } else {
-            false
         }
+
+        id < self.imports.len()
     }
 }
-
 
 impl Section for ImportSection {
     fn compile(self) -> Result<Vec<u8>, EncodingError> {
@@ -55,7 +47,7 @@ impl Section for ImportSection {
             write::unsigned(&mut byte_buff, export_name.len() as u64)?;
             byte_buff.extend_from_slice(export_name.as_bytes());
 
-            byte_buff.push(kind as u8);
+            byte_buff.extend_from_slice(&kind.encode()?);
         }
 
         Ok(byte_buff)

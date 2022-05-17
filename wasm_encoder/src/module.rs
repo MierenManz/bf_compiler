@@ -1,9 +1,21 @@
 use super::sections::*;
 use crate::EncodingError;
+use crate::ModuleError;
+
+#[cfg(feature = "async_compile")]
+use tokio::task;
+#[cfg(feature = "async_compile")]
+use tokio::task::JoinError;
+#[cfg(feature = "async_compile")]
+use tokio::task::JoinHandle;
 
 pub struct Module {
-    bytes: Vec<u8>,
-    current_section: u8,
+    type_section: Vec<TypeSection>,
+    import_section: Vec<ImportSection>,
+    function_section: Vec<FunctionSection>,
+    // memory_section: Vec<MemorySection>,
+    // export_section: Vec<ExportSection>,
+    // code_section: Vec<CodeSection>,
 }
 
 impl Module {
@@ -11,39 +23,118 @@ impl Module {
         Self::default()
     }
 
-    /// Footgun because this method does not look at the type of module
-    pub fn add_section(&mut self, section: &impl Section) -> Result<(), EncodingError> {
-        let section_id = section.id();
-
-        if self.current_section > section_id {
-            return Err(EncodingError::BadSectionID);
+    pub fn add_type_section(&mut self, section: TypeSection) -> Result<usize, ModuleError> {
+        if self.type_section.len() < (u32::MAX as usize) {
+            return Err(ModuleError::TooManySections);
         }
 
-        if self.current_section < section_id {
-            self.current_section = section_id;
+        self.type_section.push(section);
+
+        Ok(self.type_section.len() - 1)
+    }
+    pub fn add_import_section(&mut self, section: ImportSection) -> Result<usize, ModuleError> {
+        if self.type_section.len() < (u32::MAX as usize) {
+            return Err(ModuleError::TooManySections);
         }
 
-        if section.id() > 10 {
-            return Err(EncodingError::InvalidSectionID);
+        self.import_section.push(section);
+
+        Ok(self.type_section.len() - 1)
+    }
+    pub fn add_function_section(&mut self, section: FunctionSection) -> Result<usize, ModuleError> {
+        if self.type_section.len() < (u32::MAX as usize) {
+            return Err(ModuleError::TooManySections);
         }
 
-        Ok(())
+        self.function_section.push(section);
+
+        Ok(self.type_section.len() - 1)
     }
 
-    pub fn finalize_as_slice(&self) -> &[u8] {
-        &self.bytes
+    // pub fn add_memory_section(&mut self, section: MemorySection) {}
+    // pub fn add_export_section(&mut self, section: ExportSection) {}
+    // pub fn add_code_section(&mut self, section: CodeSection) {}
+
+    #[cfg(not(feature = "async_compile"))]
+    pub fn compile(self) -> Result<Vec<u8>, EncodingError> {
+        let mut buffer = Vec::new();
+
+        for s in self.type_section {
+            buffer.extend_from_slice(&s.compile()?);
+        }
+
+        for s in self.import_section {
+            buffer.extend_from_slice(&s.compile()?);
+        }
+
+        for s in self.function_section {
+            buffer.extend_from_slice(&s.compile()?);
+        }
+        // for s in self.memory_section {
+        // buffer.extend_from_slice(&s.compile()?);
+        // }
+        // for s in self.export_section {
+
+        // buffer.extend_from_slice(&s.compile()?);
+        // }
+        // for s in self.code_section {
+        // buffer.extend_from_slice(&s.compile()?);
+        // }
+
+        Ok(buffer)
     }
 
-    pub fn finalize(self) -> Vec<u8> {
-        self.bytes
+    #[cfg(feature = "async_compile")]
+    pub async fn compile(self) -> Result<Vec<u8>, EncodingError> {
+        let handle_count = self.import_section.len() + self.type_section.len();
+        let mut handles = Vec::with_capacity(handle_count);
+
+        for s in self.type_section {
+            let handle = task::spawn(async { s.compile() });
+            handles.push(handle);
+        }
+
+        for s in self.import_section {
+            let handle = task::spawn(async { s.compile() });
+            handles.push(handle);
+        }
+
+        for s in self.function_section {
+            let handle = task::spawn(async { s.compile() });
+            handles.push(handle);
+        }
+        // for s in self.memory_section {
+        //     let handle = task::spawn(async { s.compile() });
+        //     handles.push(handle);
+        // }
+        // for s in self.export_section {
+        //     let handle = task::spawn(async { s.compile() });
+        //     handles.push(handle);
+        // }
+        // for s in self.code_section {
+        //     let handle = task::spawn(async { s.compile() });
+        //     handles.push(handle)
+        // }
+
+        let mut buffer = Vec::new();
+
+        for handle in handles {
+            let v = handle.await.unwrap();
+            buffer.extend_from_slice(&v?);
+        }
+        Ok(buffer)
     }
 }
 
 impl Default for Module {
     fn default() -> Self {
         Self {
-            bytes: vec![0x00, 0x61, 0x73, 0x6D, 0x00, 0x00, 0x00, 0x01],
-            current_section: 0,
+            type_section: Vec::new(),
+            import_section: Vec::new(),
+            function_section: Vec::new(),
+            // memory_section: Vec<MemorySection>,
+            // export_section: Vec<ExportSection>,
+            // code_section: Vec<CodeSection>,
         }
     }
 }
