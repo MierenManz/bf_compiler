@@ -145,7 +145,7 @@ impl Parser {
                 KeyWord::ValueIncrease | KeyWord::ValueDecrease => {
                     self.parse_value(&mut scope, keyword)?
                 }
-                _ => return Err(ParseError::UnexpectedChar(']' as u8)),
+                _ => return Ok(()),
             };
         }
 

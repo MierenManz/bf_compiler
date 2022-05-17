@@ -1,10 +1,12 @@
 use bf_common::Instruction;
 
+#[derive(Debug)]
 pub enum IdentType {
     Instruction(Instruction),
     Scope(Scope),
 }
 
+#[derive(Debug)]
 pub struct Scope {
     idents: Vec<IdentType>,
 }

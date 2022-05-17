@@ -1,4 +1,5 @@
+#[derive(Debug, Copy, Clone)]
 pub enum ParseError {
     UnexpectedEOF,
-    UnexpectedChar(u8),
+    UnexpectedChar(char),
 }
