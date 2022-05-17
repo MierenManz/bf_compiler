@@ -1,5 +1,5 @@
 [package]
-name = "wasm_encoder"
+name = "wasm-encoder"
 version = "0.1.0"
 edition = "2021"
 

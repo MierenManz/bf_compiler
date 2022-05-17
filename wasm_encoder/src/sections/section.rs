@@ -2,5 +2,5 @@ use crate::EncodingError;
 
 pub trait Section {
     fn compile(self) -> Result<Vec<u8>, EncodingError>;
-    fn id() -> u8;
+    fn id(&self) -> u8;
 }

@@ -9,3 +9,4 @@ edition = "2021"
 bf-parser = { path = "../parser/" }
 bf-lexer = { path = "../lexer/" }
 bf-compiler = { path = "../compiler/" }
+wasm-encoder = { path = "../wasm_encoder/" }

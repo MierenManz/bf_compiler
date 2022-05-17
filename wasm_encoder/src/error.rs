@@ -1,6 +1,8 @@
 #[derive(Debug, Copy, Clone)]
 pub enum EncodingError {
     CouldNotEncodeVarint,
+    InvalidSectionID,
+    BadSectionID,
 }
 
 impl From<std::io::Error> for EncodingError {
