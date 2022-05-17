@@ -10,7 +10,9 @@ pub struct TypeSection {
 
 impl TypeSection {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            type_defs: Vec::new(),
+        }
     }
 
     pub fn add_type_definition(&mut self, params: Vec<ValType>, returns: Vec<ValType>) -> usize {
@@ -25,14 +27,6 @@ impl TypeSection {
         }
 
         id < self.type_defs.len()
-    }
-}
-
-impl Default for TypeSection {
-    fn default() -> Self {
-        Self {
-            type_defs: Vec::new(),
-        }
     }
 }
 

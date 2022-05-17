@@ -9,7 +9,9 @@ pub struct ImportSection {
 
 impl ImportSection {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            imports: Vec::new(),
+        }
     }
 
     pub fn add_import<T: Into<String>>(
@@ -30,14 +32,6 @@ impl ImportSection {
         }
 
         id < self.imports.len()
-    }
-}
-
-impl Default for ImportSection {
-    fn default() -> Self {
-        Self {
-            imports: Vec::new(),
-        }
     }
 }
 
