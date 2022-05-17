@@ -7,6 +7,7 @@ pub enum EncodingError {
     CouldNotGetThread,
     TaskCancelled,
     TaskPanicked,
+    MissingSection(&'static str),
 }
 
 impl From<std::io::Error> for EncodingError {
@@ -16,9 +17,4 @@ impl From<std::io::Error> for EncodingError {
             _ => Self::CouldNotEncodeVarint,
         }
     }
-}
-
-#[derive(Debug, Copy, Clone)]
-pub enum ModuleError {
-    TooManySections,
 }

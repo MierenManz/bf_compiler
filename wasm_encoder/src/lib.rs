@@ -3,7 +3,6 @@ mod module;
 pub mod sections;
 mod util;
 pub use error::EncodingError;
-pub use error::ModuleError;
 pub use module::Module;
 pub use util::ExternalKind;
 pub use util::ResizableLimits;

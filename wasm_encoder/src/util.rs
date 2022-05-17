@@ -7,6 +7,25 @@ pub struct ResizableLimits {
     pub maximum: Option<u32>,
 }
 
+impl ResizableLimits {
+    pub fn encode(self) -> Result<Vec<u8>, EncodingError> {
+        let mut buff = Vec::with_capacity(8);
+        if self.maximum.is_some() {
+            write::unsigned(&mut buff, 1)?;
+        } else {
+            write::unsigned(&mut buff, 0)?;
+        }
+
+        write::unsigned(&mut buff, self.minimum as u64)?;
+
+        if self.maximum.is_some() {
+            write::unsigned(&mut buff, self.maximum.unwrap() as u64)?;
+        }
+
+        Ok(buff)
+    }
+}
+
 #[derive(Copy, Clone)]
 pub enum ValType {
     I32 = 0x7F,
@@ -35,17 +54,7 @@ impl ExternalKind {
                 write::unsigned(&mut buff, idx as u64)?;
             }
             ExternalKind::Table(mem_descriptor) | ExternalKind::Memory(mem_descriptor) => {
-                if mem_descriptor.maximum.is_some() {
-                    write::unsigned(&mut buff, 1)?;
-                } else {
-                    write::unsigned(&mut buff, 0)?;
-                }
-
-                write::unsigned(&mut buff, mem_descriptor.minimum as u64)?;
-
-                if mem_descriptor.maximum.is_some() {
-                    write::unsigned(&mut buff, mem_descriptor.maximum.unwrap() as u64)?;
-                }
+                buff.extend_from_slice(&mem_descriptor.encode()?);
             }
             ExternalKind::Global(val, is_mut) => {
                 write::unsigned(&mut buff, val as u64)?;

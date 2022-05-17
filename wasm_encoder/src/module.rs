@@ -1,6 +1,5 @@
 use super::sections::*;
 use crate::EncodingError;
-use crate::ModuleError;
 
 #[cfg(feature = "async_compile")]
 use tokio::task;
@@ -13,6 +12,7 @@ pub struct Module {
     type_section: Vec<TypeSection>,
     import_section: Vec<ImportSection>,
     function_section: Vec<FunctionSection>,
+    // table_section: Vec<TableSection>,
     // memory_section: Vec<MemorySection>,
     // export_section: Vec<ExportSection>,
     // code_section: Vec<CodeSection>,
@@ -23,32 +23,19 @@ impl Module {
         Self::default()
     }
 
-    pub fn add_type_section(&mut self, section: TypeSection) -> Result<usize, ModuleError> {
-        if self.type_section.len() < (u32::MAX as usize) {
-            return Err(ModuleError::TooManySections);
-        }
-
+    pub fn add_type_section(&mut self, section: TypeSection) -> usize {
         self.type_section.push(section);
-
-        Ok(self.type_section.len() - 1)
+        self.type_section.len() - 1
     }
-    pub fn add_import_section(&mut self, section: ImportSection) -> Result<usize, ModuleError> {
-        if self.type_section.len() < (u32::MAX as usize) {
-            return Err(ModuleError::TooManySections);
-        }
 
+    pub fn add_import_section(&mut self, section: ImportSection) -> usize {
         self.import_section.push(section);
-
-        Ok(self.type_section.len() - 1)
+        self.import_section.len() - 1
     }
-    pub fn add_function_section(&mut self, section: FunctionSection) -> Result<usize, ModuleError> {
-        if self.type_section.len() < (u32::MAX as usize) {
-            return Err(ModuleError::TooManySections);
-        }
 
+    pub fn add_function_section(&mut self, section: FunctionSection) -> usize {
         self.function_section.push(section);
-
-        Ok(self.type_section.len() - 1)
+        self.function_section.len() - 1
     }
 
     // pub fn add_memory_section(&mut self, section: MemorySection) {}
@@ -57,6 +44,18 @@ impl Module {
 
     #[cfg(not(feature = "async_compile"))]
     pub fn compile(self) -> Result<Vec<u8>, EncodingError> {
+        if self.type_section.len() == 0 {
+            return Err(EncodingError::MissingSection("Type Section"));
+        }
+
+        if self.function_section.len() == 0 {
+            return Err(EncodingError::MissingSection("Function Section"));
+        }
+
+        // if self.code_section.len() == 0 {
+        //     return Err(EncodingError::MissingSection("Code Section"));
+        // }
+
         let mut buffer = Vec::new();
 
         for s in self.type_section {
@@ -132,6 +131,7 @@ impl Default for Module {
             type_section: Vec::new(),
             import_section: Vec::new(),
             function_section: Vec::new(),
+            // table_section: Vec::new(),
             // memory_section: Vec<MemorySection>,
             // export_section: Vec<ExportSection>,
             // code_section: Vec<CodeSection>,
