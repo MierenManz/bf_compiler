@@ -1,65 +1,10 @@
 use super::Section;
 use crate::EncodingError;
-use crate::ResizableLimits;
-use crate::ValType;
+use crate::ExternalKind;
 use leb128::write;
 
-#[derive(Copy, Clone)]
-pub enum ImportKind {
-    Function(u32),
-    Table(ResizableLimits),
-    Memory(ResizableLimits),
-    Global(ValType, bool),
-}
-
-impl ImportKind {
-    pub fn encode(self) -> Result<Vec<u8>, EncodingError> {
-        let mut buff = Vec::new();
-        write::unsigned(&mut buff, u8::from(self) as u64)?;
-        match self {
-            ImportKind::Function(idx) => {
-                write::unsigned(&mut buff, idx as u64)?;
-            }
-            ImportKind::Table(mem_descriptor) | ImportKind::Memory(mem_descriptor) => {
-                if mem_descriptor.maximum.is_some() {
-                    write::unsigned(&mut buff, 1)?;
-                } else {
-                    write::unsigned(&mut buff, 0)?;
-                }
-
-                write::unsigned(&mut buff, mem_descriptor.minimum as u64)?;
-
-                if mem_descriptor.maximum.is_some() {
-                    write::unsigned(&mut buff, mem_descriptor.maximum.unwrap() as u64)?;
-                }
-            }
-            ImportKind::Global(val, is_mut) => {
-                write::unsigned(&mut buff, val as u64)?;
-                if is_mut {
-                    write::unsigned(&mut buff, 1)?;
-                } else {
-                    write::unsigned(&mut buff, 0)?;
-                }
-            }
-        };
-
-        Ok(buff)
-    }
-}
-
-impl From<ImportKind> for u8 {
-    fn from(kind: ImportKind) -> Self {
-        match kind {
-            ImportKind::Function(_) => 0x00,
-            ImportKind::Table(_) => 0x01,
-            ImportKind::Memory(_) => 0x02,
-            ImportKind::Global(_, _) => 0x03,
-        }
-    }
-}
-
 pub struct ImportSection {
-    imports: Vec<(String, String, ImportKind)>,
+    imports: Vec<(String, String, ExternalKind)>,
 }
 
 impl ImportSection {
@@ -71,7 +16,7 @@ impl ImportSection {
         &mut self,
         module_name: T,
         export_name: T,
-        kind: ImportKind,
+        kind: ExternalKind,
     ) -> usize {
         self.imports
             .push((module_name.into(), export_name.into(), kind));
@@ -82,10 +27,9 @@ impl ImportSection {
     pub fn remove_import(&mut self, id: usize) -> bool {
         if id < self.imports.len() {
             self.imports.swap_remove(id);
-            true
-        } else {
-            false
         }
+
+        id < self.imports.len()
     }
 }
 

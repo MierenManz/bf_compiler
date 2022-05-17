@@ -4,12 +4,6 @@ pub struct ExportSection {}
 
 impl ExportSection {
     pub fn new() -> Self {
-        Self::default()
-    }
-}
-
-impl Default for ExportSection {
-    fn default() -> Self {
         Self {}
     }
 }

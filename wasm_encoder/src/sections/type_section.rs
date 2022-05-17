@@ -22,10 +22,9 @@ impl TypeSection {
     pub fn remove_type_definition(&mut self, id: usize) -> bool {
         if id < self.type_defs.len() {
             self.type_defs.swap_remove(id);
-            true
-        } else {
-            false
         }
+
+        id < self.type_defs.len()
     }
 }
 
