@@ -12,7 +12,7 @@ use tokio::task::JoinHandle;
 pub struct Module {
     type_section: Vec<TypeSection>,
     import_section: Vec<ImportSection>,
-    // function_section: Vec<FunctionSection>,
+    function_section: Vec<FunctionSection>,
     // memory_section: Vec<MemorySection>,
     // export_section: Vec<ExportSection>,
     // code_section: Vec<CodeSection>,
@@ -41,7 +41,16 @@ impl Module {
 
         Ok(self.type_section.len() - 1)
     }
-    // pub fn add_function_section(&mut self, section: FunctionSection) {}
+    pub fn add_function_section(&mut self, section: FunctionSection) -> Result<usize, ModuleError> {
+        if self.type_section.len() < (u32::MAX as usize) {
+            return Err(ModuleError::TooManySections);
+        }
+
+        self.function_section.push(section);
+
+        Ok(self.type_section.len() - 1)
+    }
+
     // pub fn add_memory_section(&mut self, section: MemorySection) {}
     // pub fn add_export_section(&mut self, section: ExportSection) {}
     // pub fn add_code_section(&mut self, section: CodeSection) {}
@@ -58,9 +67,9 @@ impl Module {
             buffer.extend_from_slice(&s.compile()?);
         }
 
-        // for s in self.function_section {
-        // buffer.extend_from_slice(&s.compile()?);
-        // }
+        for s in self.function_section {
+            buffer.extend_from_slice(&s.compile()?);
+        }
         // for s in self.memory_section {
         // buffer.extend_from_slice(&s.compile()?);
         // }
@@ -90,10 +99,10 @@ impl Module {
             handles.push(handle);
         }
 
-        // for s in self.function_section {
-        //     let handle = task::spawn(async { s.compile() });
-        //     handles.push(handle);
-        // }
+        for s in self.function_section {
+            let handle = task::spawn(async { s.compile() });
+            handles.push(handle);
+        }
         // for s in self.memory_section {
         //     let handle = task::spawn(async { s.compile() });
         //     handles.push(handle);
@@ -122,7 +131,7 @@ impl Default for Module {
         Self {
             type_section: Vec::new(),
             import_section: Vec::new(),
-            // function_section: Vec<FunctionSection>,
+            function_section: Vec::new(),
             // memory_section: Vec<MemorySection>,
             // export_section: Vec<ExportSection>,
             // code_section: Vec<CodeSection>,

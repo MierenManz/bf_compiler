@@ -36,7 +36,7 @@ impl Section for TypeSection {
         write::unsigned(&mut byte_buff, self.type_defs.len() as u64)?;
 
         for (param_vector, result_vector) in self.type_defs {
-            write::signed(&mut byte_buff, -0x20)?;
+            byte_buff.push(0x60);
             write::unsigned(&mut byte_buff, param_vector.len() as u64)?;
             for x in param_vector {
                 write::unsigned(&mut byte_buff, x as u64)?;
