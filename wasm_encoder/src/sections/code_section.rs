@@ -1,4 +1,5 @@
-use super::Section;
+use crate::sections::Section;
+use crate::EncodingError;
 
 pub struct CodeSection {}
 
@@ -9,10 +10,10 @@ impl CodeSection {
 }
 
 impl Section for CodeSection {
-    fn compile(self) -> Vec<u8> {
-        Vec::new()
+    fn compile(self) -> Result<Vec<u8>, EncodingError> {
+        Ok(Vec::new())
     }
-    fn id() -> u8 {
+    fn id(&self) -> u8 {
         0x01
     }
 }

@@ -23,10 +23,6 @@ impl Parser {
         i < self.keywords.len()
     }
 
-    fn within_offset(&self, offset: usize) -> bool {
-        self.within_index(self.index + offset)
-    }
-
     fn within(&self) -> bool {
         self.within_index(self.index)
     }
@@ -37,10 +33,6 @@ impl Parser {
         } else {
             None
         }
-    }
-
-    fn peek_offset(&self, offset: isize) -> Option<KeyWord> {
-        self.peek_index((self.index as isize + offset) as usize)
     }
 
     fn peek(&self) -> Option<KeyWord> {

@@ -12,10 +12,9 @@ pub struct Module {
     type_section: Vec<TypeSection>,
     import_section: Vec<ImportSection>,
     function_section: Vec<FunctionSection>,
-    // table_section: Vec<TableSection>,
-    // memory_section: Vec<MemorySection>,
-    // export_section: Vec<ExportSection>,
-    // code_section: Vec<CodeSection>,
+    memory_section: Vec<MemorySection>,
+    export_section: Vec<ExportSection>,
+    code_section: Vec<CodeSection>,
 }
 
 impl Module {
@@ -23,24 +22,27 @@ impl Module {
         Self::default()
     }
 
-    pub fn add_type_section(&mut self, section: TypeSection) -> usize {
+    pub fn add_type_section(&mut self, section: TypeSection) {
         self.type_section.push(section);
-        self.type_section.len() - 1
     }
 
-    pub fn add_import_section(&mut self, section: ImportSection) -> usize {
+    pub fn add_import_section(&mut self, section: ImportSection) {
         self.import_section.push(section);
-        self.import_section.len() - 1
     }
 
-    pub fn add_function_section(&mut self, section: FunctionSection) -> usize {
+    pub fn add_function_section(&mut self, section: FunctionSection) {
         self.function_section.push(section);
-        self.function_section.len() - 1
     }
 
-    // pub fn add_memory_section(&mut self, section: MemorySection) {}
-    // pub fn add_export_section(&mut self, section: ExportSection) {}
-    // pub fn add_code_section(&mut self, section: CodeSection) {}
+    pub fn add_memory_section(&mut self, section: MemorySection) {
+        self.memory_section.push(section);
+    }
+    pub fn add_export_section(&mut self, section: ExportSection) {
+        self.export_section.push(section)
+    }
+    pub fn add_code_section(&mut self, section: CodeSection) {
+        self.code_section.push(section);
+    }
 
     #[cfg(not(feature = "async_compile"))]
     pub fn compile(self) -> Result<Vec<u8>, EncodingError> {
@@ -52,9 +54,9 @@ impl Module {
             return Err(EncodingError::MissingSection("Function Section"));
         }
 
-        // if self.code_section.len() == 0 {
-        //     return Err(EncodingError::MissingSection("Code Section"));
-        // }
+        if self.code_section.len() == 0 {
+            return Err(EncodingError::MissingSection("Code Section"));
+        }
 
         let mut buffer = Vec::new();
 
@@ -69,16 +71,18 @@ impl Module {
         for s in self.function_section {
             buffer.extend_from_slice(&s.compile()?);
         }
-        // for s in self.memory_section {
-        // buffer.extend_from_slice(&s.compile()?);
-        // }
-        // for s in self.export_section {
 
-        // buffer.extend_from_slice(&s.compile()?);
-        // }
-        // for s in self.code_section {
-        // buffer.extend_from_slice(&s.compile()?);
-        // }
+        for s in self.memory_section {
+            buffer.extend_from_slice(&s.compile()?);
+        }
+
+        for s in self.export_section {
+            buffer.extend_from_slice(&s.compile()?);
+        }
+
+        for s in self.code_section {
+            buffer.extend_from_slice(&s.compile()?);
+        }
 
         Ok(buffer)
     }
@@ -102,25 +106,28 @@ impl Module {
             let handle = task::spawn(async { s.compile() });
             handles.push(handle);
         }
-        // for s in self.memory_section {
-        //     let handle = task::spawn(async { s.compile() });
-        //     handles.push(handle);
-        // }
-        // for s in self.export_section {
-        //     let handle = task::spawn(async { s.compile() });
-        //     handles.push(handle);
-        // }
-        // for s in self.code_section {
-        //     let handle = task::spawn(async { s.compile() });
-        //     handles.push(handle)
-        // }
+
+        for s in self.memory_section {
+            let handle = task::spawn(async { s.compile() });
+            handles.push(handle);
+        }
+
+        for s in self.export_section {
+            let handle = task::spawn(async { s.compile() });
+            handles.push(handle);
+        }
+
+        for s in self.code_section {
+            let handle = task::spawn(async { s.compile() });
+            handles.push(handle)
+        }
 
         let mut buffer = Vec::new();
 
         for handle in handles {
-            let v = handle.await.unwrap();
-            buffer.extend_from_slice(&v?);
+            buffer.extend_from_slice(&handle.await.unwrap()?);
         }
+
         Ok(buffer)
     }
 }
@@ -131,10 +138,9 @@ impl Default for Module {
             type_section: Vec::new(),
             import_section: Vec::new(),
             function_section: Vec::new(),
-            // table_section: Vec::new(),
-            // memory_section: Vec<MemorySection>,
-            // export_section: Vec<ExportSection>,
-            // code_section: Vec<CodeSection>,
+            memory_section: Vec::new(),
+            export_section: Vec::new(),
+            code_section: Vec::new(),
         }
     }
 }

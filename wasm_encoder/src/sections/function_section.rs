@@ -12,6 +12,7 @@ impl FunctionSection {
             fn_declarations: Vec::new(),
         }
     }
+
     pub fn add_fn_declaration(&mut self, type_index: u32) -> usize {
         self.fn_declarations.push(type_index);
 

@@ -1,8 +1,7 @@
-use leb128::write;
-
-use super::Section;
+use crate::sections::Section;
 use crate::EncodingError;
 use crate::ValType;
+use leb128::write;
 
 pub struct TypeSection {
     type_defs: Vec<(Vec<ValType>, Vec<ValType>)>,

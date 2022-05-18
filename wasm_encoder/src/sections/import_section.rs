@@ -1,4 +1,4 @@
-use super::Section;
+use crate::sections::Section;
 use crate::EncodingError;
 use crate::ExternalKind;
 use leb128::write;
