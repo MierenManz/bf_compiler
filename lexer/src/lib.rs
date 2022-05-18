@@ -41,9 +41,9 @@ impl Iterator for Lexer {
                 _ => return self.next(),
             };
 
-            Some(keyword)
-        } else {
-            None
+            return Some(keyword);
         }
+
+        None
     }
 }

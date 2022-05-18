@@ -12,10 +12,7 @@ impl Tokenizer {
     }
 
     pub fn within_index(&self, i: usize) -> bool {
-        if i < self.source.len() {
-            return true;
-        }
-        false
+        i < self.source.len()
     }
 
     pub fn within(&self) -> bool {
@@ -26,6 +23,7 @@ impl Tokenizer {
         if self.within_index(i) {
             return Some(self.source[i]);
         }
+
         None
     }
 
